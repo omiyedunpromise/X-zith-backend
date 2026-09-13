@@ -1,6 +1,6 @@
 {
   "name": "x-zith-backend",
-  "version": "3.0.0",
+  "version": "2",
   "description": "X-ZITH Learning Hub Backend - Node.js on Vercel",
   "main": "api/index.js",
   "engines": {
