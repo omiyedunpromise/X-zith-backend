@@ -28,7 +28,7 @@ module.exports = async (req, res) => {
       const response = {
         status: 'running',
         app: 'X-ZITH Backend on Vercel',
-        version: '3.0',
+        version: '2',
         timestamp: new Date().toISOString(),
       };
       return res.status(200).json(response);
