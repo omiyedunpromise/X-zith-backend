@@ -54,7 +54,7 @@ app.post('/api/signup', async (req, res) => {
     try {
       await pool.query(
         'INSERT INTO users (username, email, password_hash, total_score, quizzes_taken, exam_questions, streak, last_active, last_daily_challenge) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)',
-        [username, email, passwordHash, 0, 0, 0, 1, today, '']
+        [username, email, passwordHash, 0, 0, 0, 1, today, null]
       );
 
       res.json({ success: true, message: 'Account created! Please login.' });
