@@ -53,8 +53,8 @@ app.post('/api/signup', async (req, res) => {
 
     try {
       await pool.query(
-        'INSERT INTO users (username, email, password_hash, total_score, quizzes_taken, exam_questions, streak, last_active, last_daily_challenge) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)',
-        [username, email, passwordHash, 0, 0, 0, 1, today, null]
+        'INSERT INTO users (username, email, password_hash, total_score, quizzes_taken, exam_questions, streak, last_active) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)',
+        [username, email, passwordHash, 0, 0, 0, 1, today]
       );
 
       res.json({ success: true, message: 'Account created! Please login.' });
@@ -139,48 +139,28 @@ app.post('/api/chat', async (req, res) => {
       return res.status(400).json({ error: 'Message required' });
     }
 
-    // Special responses
-    if (message.toLowerCase().includes('what is your name')) {
+    if (message.toLowerCase().includes('name')) {
       return res.json({ response: 'I am **Fixto AI**, your personal learning assistant! 🤖' });
     }
 
-    if (message.toLowerCase().includes('who created')) {
-      return res.json({ response: 'I am created by **Promise Omiyedun**, CEO and founder of **X-ZITH Technology**. 💡' });
+    if (message.toLowerCase().includes('created')) {
+      return res.json({ response: 'I am created by **Promise Omiyedun**, CEO of **X-ZITH Technology**! 💡' });
     }
 
-    // Use Gemini for general chat
     try {
       const response = await axios.post(
         'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent',
-        {
-          contents: [{
-            parts: [{ text: message }]
-          }]
-        },
-        {
-          params: { key: GEMINI_API_KEY },
-          headers: { 'Content-Type': 'application/json' }
-        }
+        { contents: [{ parts: [{ text: message }] }] },
+        { params: { key: GEMINI_API_KEY }, headers: { 'Content-Type': 'application/json' } }
       );
 
       const reply = response.data.candidates[0].content.parts[0].text;
       res.json({ response: reply });
     } catch (err) {
-      console.error('Gemini error, trying OpenRouter:', err.message);
-      
-      // Fallback to OpenRouter
       const response = await axios.post(
         'https://openrouter.ai/api/v1/chat/completions',
-        {
-          model: 'meta-llama/llama-3-8b-instruct:free',
-          messages: [{ role: 'user', content: message }]
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${OPENROUTER_API_KEY}`,
-            'Content-Type': 'application/json'
-          }
-        }
+        { model: 'meta-llama/llama-3-8b-instruct:free', messages: [{ role: 'user', content: message }] },
+        { headers: { Authorization: `Bearer ${OPENROUTER_API_KEY}`, 'Content-Type': 'application/json' } }
       );
 
       const reply = response.data.choices[0].message.content;
@@ -196,31 +176,17 @@ app.post('/api/generate-textbook', async (req, res) => {
   try {
     const { level, subject, topic } = req.body;
 
-    const prompt = `Act as a teacher for ${level} students. Write a complete textbook note for ${subject} on '${topic}'. 
-    Structure: 
-    1. Introduction
-    2. Step-by-Step Explanation
-    3. Key Terms and Definitions
-    4. Important Points
-    5. Summary`;
+    const prompt = `Act as a teacher for ${level} students. Write a complete textbook note for ${subject} on '${topic}'. Structure: 1. Introduction, 2. Step-by-Step Explanation, 3. Key Terms, 4. Summary`;
 
     const response = await axios.post(
       'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent',
-      {
-        contents: [{
-          parts: [{ text: prompt }]
-        }]
-      },
-      {
-        params: { key: GEMINI_API_KEY },
-        headers: { 'Content-Type': 'application/json' }
-      }
+      { contents: [{ parts: [{ text: prompt }] }] },
+      { params: { key: GEMINI_API_KEY }, headers: { 'Content-Type': 'application/json' } }
     );
 
     const note = response.data.candidates[0].content.parts[0].text;
     res.json({ note });
   } catch (err) {
-    console.error('Textbook generation error:', err);
     res.status(500).json({ error: 'Failed to generate textbook' });
   }
 });
@@ -229,21 +195,12 @@ app.post('/api/generate-quiz', async (req, res) => {
   try {
     const { level, subject, topic, count } = req.body;
 
-    const prompt = `Generate exactly ${count} multiple-choice questions for ${level} ${subject} on '${topic}'. 
-    Return ONLY a valid JSON array. No markdown. 
-    Format: [{"q": "Question text", "options": {"A": "opt1", "B": "opt2", "C": "opt3", "D": "opt4"}, "answer": "A", "explanation": "Why"}]`;
+    const prompt = `Generate exactly ${count} multiple-choice questions for ${level} ${subject} on '${topic}'. Return ONLY JSON: [{"q": "Question", "options": {"A": "opt1", "B": "opt2", "C": "opt3", "D": "opt4"}, "answer": "A", "explanation": "Why"}]`;
 
     const response = await axios.post(
       'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent',
-      {
-        contents: [{
-          parts: [{ text: prompt }]
-        }]
-      },
-      {
-        params: { key: GEMINI_API_KEY },
-        headers: { 'Content-Type': 'application/json' }
-      }
+      { contents: [{ parts: [{ text: prompt }] }] },
+      { params: { key: GEMINI_API_KEY }, headers: { 'Content-Type': 'application/json' } }
     );
 
     const text = response.data.candidates[0].content.parts[0].text;
@@ -252,7 +209,6 @@ app.post('/api/generate-quiz', async (req, res) => {
 
     res.json({ questions });
   } catch (err) {
-    console.error('Quiz generation error:', err);
     res.status(500).json({ error: 'Failed to generate quiz' });
   }
 });
@@ -261,22 +217,12 @@ app.post('/api/generate-past-questions', async (req, res) => {
   try {
     const { exam, year, level, subject, qtype, count } = req.body;
 
-    const prompt = `Generate exactly ${count} ${qtype} questions for ${exam} ${year} ${level} ${subject}. 
-    Return ONLY a valid JSON array. No markdown.
-    Format: [{"q": "Question text", "options": {"A": "opt1", "B": "opt2", "C": "opt3", "D": "opt4"}, "answer": "A", "explanation": "Detailed explanation"}]`;
+    const prompt = `Generate exactly ${count} ${qtype} questions for ${exam} ${year} ${level} ${subject}. Return ONLY JSON: [{"q": "Question", "options": {"A": "opt1", "B": "opt2", "C": "opt3", "D": "opt4"}, "answer": "A", "explanation": "Explanation"}]`;
 
     const response = await axios.post(
       'https://api.deepseek.com/chat/completions',
-      {
-        model: 'deepseek-chat',
-        messages: [{ role: 'user', content: prompt }]
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${DEEPSEEK_API_KEY}`,
-          'Content-Type': 'application/json'
-        }
-      }
+      { model: 'deepseek-chat', messages: [{ role: 'user', content: prompt }] },
+      { headers: { Authorization: `Bearer ${DEEPSEEK_API_KEY}`, 'Content-Type': 'application/json' } }
     );
 
     const text = response.data.choices[0].message.content;
@@ -285,25 +231,10 @@ app.post('/api/generate-past-questions', async (req, res) => {
 
     res.json({ questions });
   } catch (err) {
-    console.error('Past questions error, trying fallback:', err.message);
-
-    // Fallback to OpenRouter
     const response = await axios.post(
       'https://openrouter.ai/api/v1/chat/completions',
-      {
-        model: 'meta-llama/llama-3-8b-instruct:free',
-        messages: [{
-          role: 'user',
-          content: `Generate exactly ${count} multiple-choice questions for ${exam} ${year} ${level} ${subject}.
-          Return ONLY JSON array like [{"q": "...", "options": {"A": "...", "B": "...", "C": "...", "D": "..."}, "answer": "A", "explanation": "..."}]`
-        }]
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${OPENROUTER_API_KEY}`,
-          'Content-Type': 'application/json'
-        }
-      }
+      { model: 'meta-llama/llama-3-8b-instruct:free', messages: [{ role: 'user', content: `Generate quiz JSON for ${exam} ${subject}` }] },
+      { headers: { Authorization: `Bearer ${OPENROUTER_API_KEY}` } }
     );
 
     const text = response.data.choices[0].message.content;
@@ -319,11 +250,7 @@ app.get('/api/search', async (req, res) => {
     const { q } = req.query;
 
     const response = await axios.get('https://serpapi.com/search.json', {
-      params: {
-        q,
-        api_key: SERPAPI_KEY,
-        engine: 'google'
-      }
+      params: { q, api_key: SERPAPI_KEY, engine: 'google' }
     });
 
     const results = response.data.organic_results?.slice(0, 5).map(item => ({
@@ -333,33 +260,21 @@ app.get('/api/search', async (req, res) => {
 
     res.json({ results });
   } catch (err) {
-    console.error('Search error:', err);
     res.status(500).json({ error: 'Search failed' });
   }
 });
-
-// ============================================================
-// SCORING & ACTIVITY
-// ============================================================
 
 app.post('/api/update-score', async (req, res) => {
   try {
     const { email, points, activityType, details } = req.body;
 
-    // Get current user
-    const userResult = await pool.query(
-      'SELECT * FROM users WHERE email = $1',
-      [email]
-    );
+    const userResult = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
 
     if (userResult.rows.length === 0) {
       return res.status(404).json({ error: 'User not found' });
     }
 
     const user = userResult.rows[0];
-    const today = new Date().toISOString().split('T')[0];
-
-    // Update score
     const newScore = user.total_score + points;
     const newQuizzes = user.quizzes_taken + (activityType === 'Quiz' ? 1 : 0);
     const newExams = user.exam_questions + (['WAEC', 'NECO', 'JAMB', 'Daily Challenge'].includes(activityType) ? 1 : 0);
@@ -369,7 +284,6 @@ app.post('/api/update-score', async (req, res) => {
       [newScore, newQuizzes, newExams, email]
     );
 
-    // Log activity
     await pool.query(
       'INSERT INTO activity (username, type, details, points, timestamp) VALUES ($1, $2, $3, $4, $5)',
       [email, activityType, details, points, new Date().toISOString()]
@@ -377,14 +291,9 @@ app.post('/api/update-score', async (req, res) => {
 
     res.json({ success: true });
   } catch (err) {
-    console.error('Score update error:', err);
     res.status(500).json({ error: 'Failed to update score' });
   }
 });
-
-// ============================================================
-// LEADERBOARD
-// ============================================================
 
 app.get('/api/leaderboard', async (req, res) => {
   try {
@@ -394,14 +303,9 @@ app.get('/api/leaderboard', async (req, res) => {
 
     res.json({ leaderboard: result.rows });
   } catch (err) {
-    console.error('Leaderboard error:', err);
     res.status(500).json({ error: 'Failed to get leaderboard' });
   }
 });
-
-// ============================================================
-// HEALTH CHECK
-// ============================================================
 
 app.get('/api', (req, res) => {
   res.json({
@@ -412,7 +316,6 @@ app.get('/api', (req, res) => {
   });
 });
 
-// Start server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`✅ X-ZITH Backend running on port ${PORT}`);
