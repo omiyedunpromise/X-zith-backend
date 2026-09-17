@@ -1,9 +1,0 @@
-fastapi
-uvicorn
-psycopg2-binary
-google-generativeai
-openai
-requests
-pydantic
-bcrypt
-python-dotenv
