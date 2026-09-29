@@ -30,10 +30,10 @@ const GEMINI_API_KEY     = process.env.GEMINI_API_KEY;
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 const SERPAPI_KEY        = process.env.SERPAPI_KEY;
 
-const GEMINI_MODEL       = 'gemini-2.0-flash';                             // Google
-const OPENROUTER_MODEL   = 'deepseek/deepseek-chat';                       // OpenRouter model id
+const GEMINI_MODEL       = 'gemini-3.8-flash';                             // Google
+const OPENROUTER_MODEL   = 'nvidia/nemotron-3-ultra';                       // OpenRouter model id
 // Other options: 'meta-llama/llama-3.1-70b-instruct', 'openai/gpt-4o-mini',
-//                'anthropic/claude-3.5-sonnet', 'google/gemini-flash-1.5'
+//                'anthropic/claude-5.5-sonnet', 'google/gemini-flash-1.5'
 
 let theoriesData = {};
 let questionsData = {};
