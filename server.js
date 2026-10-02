@@ -33,7 +33,7 @@ const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 const SERPAPI_KEY        = process.env.SERPAPI_KEY;
 
 const GEMINI_MODEL       = process.env.GEMINI_MODEL || 'gemini-3.8-flash';
-const GROQ_MODEL         = process.env.GROQ_MODEL   || 'openai/gtp-oss-120b';
+const GROQ_MODEL         = process.env.GROQ_MODEL   || 'meta-llama/llama-prompt-guard-2-22m';
 const OPENROUTER_MODEL   = process.env.OPENROUTER_MODEL || 'Gemma-4-26B-and-31B-variants';
 
 const groq = GROQ_API_KEY ? new Groq({ apiKey: GROQ_API_KEY }) : null;
