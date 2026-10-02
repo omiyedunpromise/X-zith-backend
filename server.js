@@ -32,9 +32,9 @@ const GROQ_API_KEY       = process.env.GROQ_API_KEY;
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 const SERPAPI_KEY        = process.env.SERPAPI_KEY;
 
-const GEMINI_MODEL       = process.env.GEMINI_MODEL || 'gemini-1.5-flash';
-const GROQ_MODEL         = process.env.GROQ_MODEL   || 'llama-3.3-70b-versatile';
-const OPENROUTER_MODEL   = process.env.OPENROUTER_MODEL || 'meta-llama/llama-3.3-70b-instruct:free';
+const GEMINI_MODEL       = process.env.GEMINI_MODEL || 'gemini-3.8-flash';
+const GROQ_MODEL         = process.env.GROQ_MODEL   || 'Qwen-3.8-27B';
+const OPENROUTER_MODEL   = process.env.OPENROUTER_MODEL || 'Gemma-4-26B-and-31B-variants';
 
 const groq = GROQ_API_KEY ? new Groq({ apiKey: GROQ_API_KEY }) : null;
 
