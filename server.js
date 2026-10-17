@@ -1,6 +1,6 @@
 /* ============================================================
    X-ZITH Learning Hub — Backend
-   Gemini (2.5-flash-lite) primary + Groq (llama-3.3-70b) fallback
+   Gemini (3.5-flash-lite) primary + Groq (llama-3.3-70b) fallback
    Persistent DB cache  •  Cross-device user data  •  Chat history
    ============================================================ */
 
@@ -37,7 +37,7 @@ const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 const GROQ_API_KEY = process.env.GROQ_API_KEY;
 const SERPAPI_KEY = process.env.SERPAPI_KEY;
 
-const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash-lite';
+const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-3.5-flash-lite';
 const GROQ_MODEL = process.env.GROQ_MODEL || 'llama-3.3-70b-versatile';
 
 const groq = GROQ_API_KEY ? new Groq({ apiKey: GROQ_API_KEY }) : null;
